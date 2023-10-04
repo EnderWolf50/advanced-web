@@ -1,5 +1,11 @@
+import { IncreaseThreeButton } from "@/components/increase-three-button";
 import { RandomNumberButton } from "@/components/random-number-button";
 
 export default function Home() {
-  return <RandomNumberButton />;
+  return (
+    <div>
+      <RandomNumberButton />
+      <IncreaseThreeButton />
+    </div>
+  );
 }
