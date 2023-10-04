@@ -1,12 +1,14 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
+import { Edit } from "@mui/icons-material";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
@@ -20,31 +22,63 @@ const initialProducts = [
   { desc: "iPhone X", price: 30000 },
 ];
 
-const initialProductState = {
+const initialNewProductState = {
   desc: "",
   price: 0,
 };
 
+const initialEditProductState = {
+  ...initialNewProductState,
+  idx: -1,
+};
+
+const getVal = (e: ChangeEvent<HTMLInputElement>) => {
+  // 如果 input 欄位的 type 為 number，則取用轉為數字後的數值
+  return e.target.type !== "number" ? e.target.value : e.target.valueAsNumber;
+};
+
 export const ProductList = () => {
   const [selected, setSelected] = useState<number>(0);
-  const [open, setOpen] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const [products, setProducts] = useState(initialProducts);
-  const [newProduct, setNewProduct] = useState(initialProductState);
+  const [newProduct, setNewProduct] = useState(initialNewProductState);
+  const [editProduct, setEditProduct] = useState(initialEditProductState);
 
-  const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
-    // 如果 input 欄位的 type 為 number，則取用轉為數字後的數值
-    const value =
-      e.target.type !== "number" ? e.target.value : e.target.valueAsNumber;
-    setNewProduct((prev) => ({ ...prev, [e.target.name]: value }));
+  const handleAddFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setNewProduct((prev) => ({ ...prev, [e.target.name]: getVal(e) }));
   };
   const handleAddProduct = () => {
     // 新增商品到 `products` state
     setProducts((prev) => [...prev, newProduct]);
-    // 關閉 dialog
-    setOpen(false);
-    // 重置 dialog 內的欄位
-    setNewProduct(initialProductState);
+    // 關閉 "新增商品 dialog"
+    setAddDialogOpen(false);
+    // 重置 "新增商品 dialog" 內的欄位
+    setNewProduct(initialNewProductState);
+  };
+
+  const handleEditClick = (idx: number) => {
+    // 將 "編輯商品 dialog" 中的欄位設為要編輯的商品內容
+    setEditProduct({ idx, ...products[idx] });
+    setEditDialogOpen(true);
+  };
+  const handleEditFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEditProduct((prev) => ({ ...prev, [e.target.name]: getVal(e) }));
+  };
+  const handleEditProduct = () => {
+    setProducts((prev) => {
+      // 複製先前的 `products` state
+      const newProducts = [...prev];
+      // 利用 idx 找到要編輯的商品，並將其內容更新
+      newProducts[editProduct.idx] = editProduct;
+
+      return newProducts;
+    });
+    // 關閉 "編輯商品 dialog"
+    setEditDialogOpen(false);
+    // 重置 "編輯商品 dialog" 內的欄位
+    setEditProduct(initialEditProductState);
   };
 
   return (
@@ -58,7 +92,16 @@ export const ProductList = () => {
          * ? array: 整個 array 本身
          */}
         {products.map((product, idx) => (
-          <ListItem key={product.desc} divider>
+          <ListItem
+            key={product.desc}
+            divider
+            disablePadding
+            secondaryAction={
+              <IconButton onClick={() => handleEditClick(idx)}>
+                <Edit />
+              </IconButton>
+            }
+          >
             <ListItemButton
               selected={idx === selected}
               onClick={() => setSelected(idx)}
@@ -68,12 +111,12 @@ export const ProductList = () => {
           </ListItem>
         ))}
       </List>
-      <Button variant="contained" onClick={() => setOpen(true)}>
+      <Button variant="contained" onClick={() => setAddDialogOpen(true)}>
         新增商品
       </Button>
       <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
+        open={addDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
         maxWidth="xs"
         fullWidth
       >
@@ -84,7 +127,7 @@ export const ProductList = () => {
             variant="outlined"
             name="desc"
             value={newProduct.desc}
-            onChange={handleFieldChange}
+            onChange={handleAddFieldChange}
             margin="normal"
             fullWidth
           />
@@ -94,16 +137,51 @@ export const ProductList = () => {
             name="price"
             type="number"
             value={newProduct.price}
-            onChange={handleFieldChange}
+            onChange={handleAddFieldChange}
             margin="normal"
             fullWidth
           />
         </DialogContent>
         <DialogActions>
-          <Button color="error" onClick={() => setOpen(false)}>
+          <Button color="error" onClick={() => setAddDialogOpen(false)}>
             Cancel
           </Button>
           <Button onClick={handleAddProduct}>Submit</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>編輯商品</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="產品描述"
+            variant="outlined"
+            name="desc"
+            value={editProduct.desc}
+            onChange={handleEditFieldChange}
+            margin="normal"
+            fullWidth
+          />
+          <TextField
+            label="產品價格"
+            variant="outlined"
+            name="price"
+            type="number"
+            value={editProduct.price}
+            onChange={handleEditFieldChange}
+            margin="normal"
+            fullWidth
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button color="error" onClick={() => setEditDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleEditProduct}>Submit</Button>
         </DialogActions>
       </Dialog>
     </div>
