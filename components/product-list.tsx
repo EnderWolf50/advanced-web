@@ -22,13 +22,13 @@ const initialProducts = [
   { desc: "iPhone X", price: 30000 },
 ];
 
-const initialNewProductState = {
+const initialAddProductState = {
   desc: "",
   price: 0,
 };
 
 const initialEditProductState = {
-  ...initialNewProductState,
+  ...initialAddProductState,
   idx: -1,
 };
 
@@ -43,19 +43,19 @@ export const ProductList = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const [products, setProducts] = useState(initialProducts);
-  const [newProduct, setNewProduct] = useState(initialNewProductState);
+  const [addProduct, setAddProduct] = useState(initialAddProductState);
   const [editProduct, setEditProduct] = useState(initialEditProductState);
 
   const handleAddFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewProduct((prev) => ({ ...prev, [e.target.name]: getVal(e) }));
+    setAddProduct((prev) => ({ ...prev, [e.target.name]: getVal(e) }));
   };
   const handleAddProduct = () => {
     // 新增商品到 `products` state
-    setProducts((prev) => [...prev, newProduct]);
+    setProducts((prev) => [...prev, addProduct]);
     // 關閉 "新增商品 dialog"
     setAddDialogOpen(false);
     // 重置 "新增商品 dialog" 內的欄位
-    setNewProduct(initialNewProductState);
+    setAddProduct(initialAddProductState);
   };
 
   const handleEditClick = (idx: number) => {
@@ -89,7 +89,7 @@ export const ProductList = () => {
 
   const handleAddProductClose = () => {
     setAddDialogOpen(false);
-    setNewProduct(initialNewProductState);
+    setAddProduct(initialAddProductState);
   };
   const handleEditProductClose = () => {
     setEditDialogOpen(false);
@@ -146,7 +146,7 @@ export const ProductList = () => {
             label="產品描述"
             variant="outlined"
             name="desc"
-            value={newProduct.desc}
+            value={addProduct.desc}
             onChange={handleAddFieldChange}
             margin="normal"
             fullWidth
@@ -156,7 +156,7 @@ export const ProductList = () => {
             variant="outlined"
             name="price"
             type="number"
-            value={newProduct.price}
+            value={addProduct.price}
             onChange={handleAddFieldChange}
             margin="normal"
             fullWidth
