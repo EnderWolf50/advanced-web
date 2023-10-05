@@ -87,6 +87,15 @@ export const ProductList = () => {
     setProducts((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  const handleAddProductClose = () => {
+    setAddDialogOpen(false);
+    setNewProduct(initialNewProductState);
+  };
+  const handleEditProductClose = () => {
+    setEditDialogOpen(false);
+    setEditProduct(initialEditProductState);
+  };
+
   return (
     <div>
       <List>
@@ -127,7 +136,7 @@ export const ProductList = () => {
       </Button>
       <Dialog
         open={addDialogOpen}
-        onClose={() => setAddDialogOpen(false)}
+        onClose={handleAddProductClose}
         maxWidth="xs"
         fullWidth
       >
@@ -154,7 +163,7 @@ export const ProductList = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button color="error" onClick={() => setAddDialogOpen(false)}>
+          <Button color="error" onClick={handleAddProductClose}>
             Cancel
           </Button>
           <Button onClick={handleAddProduct}>Submit</Button>
@@ -162,7 +171,7 @@ export const ProductList = () => {
       </Dialog>
       <Dialog
         open={editDialogOpen}
-        onClose={() => setEditDialogOpen(false)}
+        onClose={handleEditProductClose}
         maxWidth="xs"
         fullWidth
       >
@@ -189,7 +198,7 @@ export const ProductList = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button color="error" onClick={() => setEditDialogOpen(false)}>
+          <Button color="error" onClick={handleEditProductClose}>
             Cancel
           </Button>
           <Button onClick={handleEditProduct}>Submit</Button>
