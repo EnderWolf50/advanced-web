@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
-import { Edit } from "@mui/icons-material";
+import { Delete, Edit } from "@mui/icons-material";
 import {
   Button,
   Dialog,
@@ -59,6 +59,12 @@ export const ProductList = () => {
     // 將該商品的資料填入 dialog 內的欄位
     setDialogProduct({ mode: "edit", idx, ...products[idx] });
   };
+
+  const handleDeleteClick = (idx: number) => {
+    // 使用 Array.filter 對照是否 "不為" 指定的 index，來過濾出新的陣列
+    // 相較於 Array.splice，Array.filter 不會影響原本的陣列，而是返回一個新的陣列
+    setProducts((prev) => prev.filter((_, i) => i !== idx));
+  };
   const handleDialogProductSubmit = () => {
     const { mode, idx, ...productInfo } = dialogProduct;
 
@@ -95,9 +101,14 @@ export const ProductList = () => {
             divider
             disablePadding
             secondaryAction={
-              <IconButton onClick={() => handleEditClick(idx)}>
-                <Edit />
-              </IconButton>
+              <>
+                <IconButton onClick={() => handleEditClick(idx)}>
+                  <Edit />
+                </IconButton>
+                <IconButton onClick={() => handleDeleteClick(idx)}>
+                  <Delete />
+                </IconButton>
+              </>
             }
           >
             <ListItemButton
