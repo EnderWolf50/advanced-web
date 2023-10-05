@@ -62,6 +62,9 @@ export const ProductList = () => {
   };
 
   const handleClose = () => {
+    setDialogState((prev) => ({ ...prev, open: false }));
+  };
+  const handleExited = () => {
     setDialogState(initialDialogState);
   };
 
@@ -145,7 +148,7 @@ export const ProductList = () => {
         onClose={handleClose}
         maxWidth="xs"
         fullWidth
-        TransitionProps={{ onEnter: handleEnter }}
+        TransitionProps={{ onEnter: handleEnter, onExited: handleExited }}
       >
         <DialogTitle>{modeText}</DialogTitle>
         <DialogContent>
