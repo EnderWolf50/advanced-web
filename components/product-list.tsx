@@ -41,6 +41,12 @@ export const ProductList = () => {
   const [products, setProducts] = useState(initialProducts);
   const [dialogProduct, setDialogProduct] = useState(initialDialogProduct);
 
+  const handleClose = () => {
+    setOpen(false);
+    // 重置 dialog 內的欄位，避免沒有新增或編輯就關閉 dialog 後留下上一次的資料
+    setDialogProduct(initialDialogProduct);
+  };
+
   const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
     // 如果 input 欄位的 type 為 number，則取用轉為數字後的數值
     const value =
@@ -123,12 +129,7 @@ export const ProductList = () => {
       <Button variant="contained" onClick={handleAddClick}>
         新增商品
       </Button>
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        maxWidth="xs"
-        fullWidth
-      >
+      <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
         <DialogTitle>新增商品</DialogTitle>
         <DialogContent>
           <TextField
@@ -152,7 +153,7 @@ export const ProductList = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button color="error" onClick={() => setOpen(false)}>
+          <Button color="error" onClick={handleClose}>
             Cancel
           </Button>
           <Button onClick={handleDialogProductSubmit}>Submit</Button>
