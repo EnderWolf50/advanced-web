@@ -49,6 +49,18 @@ export const ProductList = () => {
   const descInputRef = useRef<HTMLInputElement | null>(null);
   const priceInputRef = useRef<HTMLInputElement | null>(null);
 
+  const handleEnter = () => {
+    const { open, mode, idx } = dialogState;
+
+    if (open && mode === "edit") {
+      const { desc, price } = products[idx];
+
+      // 填入編輯物品當前的描述與價格
+      descInputRef.current!.value = desc;
+      priceInputRef.current!.value = price.toString();
+    }
+  };
+
   const handleClose = () => {
     setDialogState(initialDialogState);
   };
@@ -133,6 +145,7 @@ export const ProductList = () => {
         onClose={handleClose}
         maxWidth="xs"
         fullWidth
+        TransitionProps={{ onEnter: handleEnter }}
       >
         <DialogTitle>{modeText}</DialogTitle>
         <DialogContent>
