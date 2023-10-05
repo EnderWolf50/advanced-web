@@ -1,12 +1,14 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
+import { Edit } from "@mui/icons-material";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
@@ -20,7 +22,14 @@ const initialProducts = [
   { desc: "iPhone X", price: 30000 },
 ];
 
-const initialFormProduct = {
+const initialDialogProduct: {
+  mode?: "add" | "edit";
+  idx: number;
+  desc: string;
+  price: number;
+} = {
+  mode: undefined,
+  idx: -1,
   desc: "",
   price: 0,
 };
@@ -30,7 +39,7 @@ export const ProductList = () => {
   const [open, setOpen] = useState(false);
 
   const [products, setProducts] = useState(initialProducts);
-  const [dialogProduct, setDialogProduct] = useState(initialFormProduct);
+  const [dialogProduct, setDialogProduct] = useState(initialDialogProduct);
 
   const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
     // 如果 input 欄位的 type 為 number，則取用轉為數字後的數值
@@ -38,13 +47,36 @@ export const ProductList = () => {
       e.target.type !== "number" ? e.target.value : e.target.valueAsNumber;
     setDialogProduct((prev) => ({ ...prev, [e.target.name]: value }));
   };
-  const handleFormProductSubmit = () => {
-    // 新增商品到 `products` state
-    setProducts((prev) => [...prev, dialogProduct]);
+  const handleAddClick = () => {
+    // 開啟 dialog
+    setOpen(true);
+    // 重置 dialog 內的欄位
+    setDialogProduct((prev) => ({ ...prev, mode: "add" }));
+  };
+  const handleEditClick = (idx: number) => {
+    // 開啟 dialog
+    setOpen(true);
+    // 將該商品的資料填入 dialog 內的欄位
+    setDialogProduct({ mode: "edit", idx, ...products[idx] });
+  };
+  const handleDialogProductSubmit = () => {
+    const { mode, idx, ...productInfo } = dialogProduct;
+
+    if (mode === "add") {
+      // 新增商品到 `products` state
+      setProducts((prev) => [...prev, productInfo]);
+    } else if (mode === "edit") {
+      setProducts((prev) =>
+        // 如果 index 相同，回傳編輯後的商品，否則回傳原本的商品
+        prev.map((existingProduct, i) =>
+          idx === i ? productInfo : existingProduct
+        )
+      );
+    }
     // 關閉 dialog
     setOpen(false);
     // 重置 dialog 內的欄位
-    setDialogProduct(initialFormProduct);
+    setDialogProduct(initialDialogProduct);
   };
 
   return (
@@ -58,7 +90,16 @@ export const ProductList = () => {
          * ? array: 整個 array 本身
          */}
         {products.map((product, idx) => (
-          <ListItem key={product.desc} divider>
+          <ListItem
+            key={product.desc}
+            divider
+            disablePadding
+            secondaryAction={
+              <IconButton onClick={() => handleEditClick(idx)}>
+                <Edit />
+              </IconButton>
+            }
+          >
             <ListItemButton
               selected={idx === selected}
               onClick={() => setSelected(idx)}
@@ -68,7 +109,7 @@ export const ProductList = () => {
           </ListItem>
         ))}
       </List>
-      <Button variant="contained" onClick={() => setOpen(true)}>
+      <Button variant="contained" onClick={handleAddClick}>
         新增商品
       </Button>
       <Dialog
@@ -103,7 +144,7 @@ export const ProductList = () => {
           <Button color="error" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleFormProductSubmit}>Submit</Button>
+          <Button onClick={handleDialogProductSubmit}>Submit</Button>
         </DialogActions>
       </Dialog>
     </div>
