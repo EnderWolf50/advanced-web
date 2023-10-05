@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { useRef, useState } from "react";
 import { Delete, Edit } from "@mui/icons-material";
 import {
   Button,
@@ -22,20 +22,18 @@ const initialProducts = [
   { desc: "iPhone X", price: 30000 },
 ];
 
-const initialDialogProduct: {
+const initialDialogState: {
+  open: boolean;
   mode?: "add" | "edit";
   idx: number;
-  desc: string;
-  price: number;
 } = {
+  open: false,
   mode: undefined,
   idx: -1,
-  desc: "",
-  price: 0,
 };
 
 const modeMap: Record<
-  NonNullable<(typeof initialDialogProduct)["mode"]>,
+  NonNullable<(typeof initialDialogState)["mode"]>,
   string
 > = {
   add: "新增商品",
@@ -44,43 +42,36 @@ const modeMap: Record<
 
 export const ProductList = () => {
   const [selected, setSelected] = useState<number>(0);
-  const [open, setOpen] = useState(false);
 
   const [products, setProducts] = useState(initialProducts);
-  const [dialogProduct, setDialogProduct] = useState(initialDialogProduct);
+  const [dialogState, setDialogState] = useState(initialDialogState);
+
+  const descInputRef = useRef<HTMLInputElement | null>(null);
+  const priceInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleClose = () => {
-    setOpen(false);
-    // 重置 dialog 內的欄位，避免沒有新增或編輯就關閉 dialog 後留下上一次的資料
-    setDialogProduct(initialDialogProduct);
+    setDialogState(initialDialogState);
   };
 
-  const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
-    // 如果 input 欄位的 type 為 number，則取用轉為數字後的數值
-    const value =
-      e.target.type !== "number" ? e.target.value : e.target.valueAsNumber;
-    setDialogProduct((prev) => ({ ...prev, [e.target.name]: value }));
-  };
   const handleAddClick = () => {
-    // 開啟 dialog
-    setOpen(true);
-    // 重置 dialog 內的欄位
-    setDialogProduct((prev) => ({ ...prev, mode: "add" }));
+    // 開啟 dialog，設定為模式為新增
+    setDialogState((prev) => ({ ...prev, open: true, mode: "add" }));
   };
   const handleEditClick = (idx: number) => {
-    // 開啟 dialog
-    setOpen(true);
-    // 將該商品的資料填入 dialog 內的欄位
-    setDialogProduct({ mode: "edit", idx, ...products[idx] });
+    // 開啟 dialog，設定為模式為編輯，並指定要編輯的物品 index
+    setDialogState((prev) => ({ ...prev, open: true, mode: "edit", idx }));
   };
-
   const handleDeleteClick = (idx: number) => {
     // 使用 Array.filter 對照是否 "不為" 指定的 index，來過濾出新的陣列
     // 相較於 Array.splice，Array.filter 不會影響原本的陣列，而是返回一個新的陣列
     setProducts((prev) => prev.filter((_, i) => i !== idx));
   };
   const handleDialogProductSubmit = () => {
-    const { mode, idx, ...productInfo } = dialogProduct;
+    const { mode, idx } = dialogState;
+    const productInfo = {
+      desc: descInputRef.current!.value,
+      price: priceInputRef.current!.valueAsNumber,
+    };
 
     if (mode === "add") {
       // 新增商品到 `products` state
@@ -93,13 +84,11 @@ export const ProductList = () => {
         )
       );
     }
-    // 關閉 dialog
-    setOpen(false);
-    // 重置 dialog 內的欄位
-    setDialogProduct(initialDialogProduct);
+    // 重置 dialog state
+    setDialogState(initialDialogState);
   };
 
-  const modeText = dialogProduct.mode ? modeMap[dialogProduct.mode] : "";
+  const modeText = dialogState.mode ? modeMap[dialogState.mode] : "";
 
   return (
     <div>
@@ -139,27 +128,30 @@ export const ProductList = () => {
       <Button variant="contained" onClick={handleAddClick}>
         新增商品
       </Button>
-      <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+      <Dialog
+        open={dialogState.open}
+        onClose={handleClose}
+        maxWidth="xs"
+        fullWidth
+      >
         <DialogTitle>{modeText}</DialogTitle>
         <DialogContent>
           <TextField
             label="產品描述"
             variant="outlined"
             name="desc"
-            value={dialogProduct.desc}
-            onChange={handleFieldChange}
             margin="normal"
             fullWidth
+            inputRef={descInputRef}
           />
           <TextField
             label="產品價格"
             variant="outlined"
             name="price"
             type="number"
-            value={dialogProduct.price}
-            onChange={handleFieldChange}
             margin="normal"
             fullWidth
+            inputRef={priceInputRef}
           />
         </DialogContent>
         <DialogActions>
