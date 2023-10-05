@@ -34,6 +34,14 @@ const initialDialogProduct: {
   price: 0,
 };
 
+const modeMap: Record<
+  NonNullable<(typeof initialDialogProduct)["mode"]>,
+  string
+> = {
+  add: "新增商品",
+  edit: "編輯商品",
+};
+
 export const ProductList = () => {
   const [selected, setSelected] = useState<number>(0);
   const [open, setOpen] = useState(false);
@@ -91,6 +99,8 @@ export const ProductList = () => {
     setDialogProduct(initialDialogProduct);
   };
 
+  const modeText = dialogProduct.mode ? modeMap[dialogProduct.mode] : "";
+
   return (
     <div>
       <List>
@@ -130,7 +140,7 @@ export const ProductList = () => {
         新增商品
       </Button>
       <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
-        <DialogTitle>新增商品</DialogTitle>
+        <DialogTitle>{modeText}</DialogTitle>
         <DialogContent>
           <TextField
             label="產品描述"
